@@ -9,10 +9,12 @@ class UpdateChecksController < ApplicationController
     tool = params[:tool_name]
     version = fetch_version(tool)
 
+    store_entry(tool, params[:p_hash], params[:platform]) if tool_colors.keys.include?(tool.to_sym)
+
+    Resque.enqueue(AnalyticIngesterWorker) # TODO pass real params
+
     render json: { version: version,
                     status: :ok }
-
-    store_entry(tool, params[:p_hash], params[:platform]) if tool_colors.keys.include?(tool.to_sym)
   end
 
   def weekly
